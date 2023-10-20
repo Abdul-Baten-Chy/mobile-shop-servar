@@ -12,7 +12,6 @@ app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.USER}:${process.env.PASS}@cluster0.yjorklr.mongodb.net/?retryWrites=true&w=majority`;
 
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -25,7 +24,22 @@ async function run() {
   try {
     await client.connect();
 
+    const productCollection=client.db('brandShop').collection('productDetails');
     
+    app.post('/products', async(req, res)=>{
+        newProduct= req.body;
+        console.log(newProduct);
+        const result = await productCollection.insertOne(newProduct);
+        res.send(result);
+    })
+
+    app.get('/products', async(req, res)=>{
+        const cursor= productCollection.find();
+        const result = await cursor.toArray();
+        res.send(result);
+    })
+
+   
 
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
